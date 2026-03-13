@@ -1,5 +1,8 @@
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend for server environments
 import matplotlib.pyplot as plt
+
 from thermopack.cubic import cubic
 from thermopack.pcsaft import pcsaft
 
@@ -78,5 +81,6 @@ engine = SNGPhaseEnvelope2()
 
 with open("SNGPhaseEnvelope2.pkl","wb") as f:
     pickle.dump(engine,f)
+
 
 print("SNGPhaseEnvelope2.pkl created successfully")
