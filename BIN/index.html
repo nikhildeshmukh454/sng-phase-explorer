@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Heisenberg’s Graph Visualiser</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+        <h1>Heisenberg’s Graph Visualiser</h1>
+        <p>Real Gas Behaviour of CO₂ using Peng–Robinson EOS</p>
+    </div>
+
+
+        <!-- ===== ABOUT / THEORY SECTION ===== -->
+    <div class="card">
+
+        <h3 class="section-title">About the Equation</h3>
+
+        <p class="section-text">
+            The <b>Peng–Robinson Equation of State (PR EOS)</b> is a cubic equation
+            used to model the real gas behaviour of fluids, especially near
+            critical conditions. Unlike the ideal gas law, it accounts for
+            intermolecular attractions and finite molecular volume.
+        </p>
+
+        <p class="section-text">
+            In this visualiser, the PR EOS is used to study the thermodynamic
+            behaviour of <b>Carbon Dioxide (CO₂)</b>, a widely used industrial
+            fluid in refrigeration, supercritical extraction, and energy systems.
+        </p>
+
+        <h4 class="section-subtitle">What do the plots show?</h4>
+
+        <ul class="section-list">
+            <li>
+                <b>P–V Diagram:</b> Shows how pressure varies with molar volume
+                at a fixed temperature, highlighting real gas deviations.
+            </li>
+            <li>
+                <b>P–T Diagram:</b> Shows the saturation pressure as a function
+                of temperature, representing phase equilibrium behaviour.
+            </li>
+        </ul>
+
+        <p class="section-text subtle">
+            Select a plot type below to explore how pressure, volume, and
+            temperature interact for CO₂ under real-gas conditions.
+        </p>
+
+    </div>
+
+
+    <!-- FORM CARD -->
+    <div class="card">
+        <form method="POST">
+
+            <!-- STEP 1: SELECT GRAPH TYPE -->
+            <label>Select Graph Type</label>
+            <select name="graph_type" id="graphType" required onchange="toggleInputs()">
+                <option value="" disabled selected>-- Choose Diagram --</option>
+                <option value="PV">P–V Diagram (Peng–Robinson EOS)</option>
+                <option value="PT">P–T Saturation Curve</option>
+            </select>
+
+            <!-- STEP 2A: P–V INPUT -->
+            <div id="pvInputs" style="display: none;">
+                <label>Temperature T (K)</label>
+                <input type="number" name="T" step="0.1" placeholder="e.g. 280">
+            </div>
+
+            <!-- STEP 2B: P–T INPUT -->
+            <div id="ptInputs" style="display: none;">
+                <label>Minimum Temperature Tₘᵢₙ (K)</label>
+                <input type="number" name="T_min" step="0.1" value="220">
+
+                <label>Maximum Temperature Tₘₐₓ (K)</label>
+                <input type="number" name="T_max" step="0.1" value="300">
+            </div>
+
+            <button type="submit">Cook the Graph</button>
+
+        </form>
+    </div>
+
+    <!-- TEAM SECTION -->
+    <div class="card team-section">
+        <h3 class="team-title">The Lab</h3>
+        <p class="team-subtitle">Two minds. One experiment.</p>
+
+        <div class="team-grid">
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='nikhil.jpg') }}">
+                <h4>Nikhil</h4>
+                <p>Knows the Development</p>
+            </div>
+
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='vainavi.jpg') }}">
+                <h4>Vainavi</h4>
+                <p>Knows the Chemistry</p>
+            </div>
+        </div>
+
+        <p class="team-together">Together, we cook the graphs.</p>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        “You know the chemistry. I know the business.”
+    </div>
+
+</div>
+
+<!-- ===== SIMPLE JS (NO FRAMEWORK) ===== -->
+<script>
+function toggleInputs() {
+    const graphType = document.getElementById("graphType").value;
+    const pv = document.getElementById("pvInputs");
+    const pt = document.getElementById("ptInputs");
+
+    if (graphType === "PV") {
+        pv.style.display = "block";
+        pt.style.display = "none";
+    } else if (graphType === "PT") {
+        pv.style.display = "none";
+        pt.style.display = "block";
+    }
+}
+</script>
+
+</body>
+</html>

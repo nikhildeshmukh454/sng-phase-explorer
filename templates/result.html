@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Synthetic Natural Gas Phase Explorer</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</head>
+
+<body>
+
+<header class="header">
+
+<h1>PhaseLab</h1>
+<p class="subtitle">Exploring Phase Behaviour of Real Gas Mixtures</p>
+
+</header>
+
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<div class="card">
+
+<h2>Simulation Controls</h2>
+
+<form method="POST" onsubmit="showLoading()">
+
+<label>Select SNG Mixture</label>
+
+<select name="sng_number">
+
+{% for i in range(1,20) %}
+<option value="{{i}}">SNG {{i}}</option>
+{% endfor %}
+
+</select>
+
+<button type="submit" class="btn">
+⚡ Generate Phase Diagram
+</button>
+
+</form>
+
+</div>
+
+
+<div class="card composition">
+
+{% if mixture_name %}
+<h3>Gas Composition of {{ mixture_name }}</h3>
+{% else %}
+<h3>Gas Composition</h3>
+{% endif %}
+
+
+{% if composition %}
+
+{% for comp,val in composition.items() %}
+
+<div class="comp-row">
+
+<span>{{comp}}</span>
+
+<div class="bar">
+<div class="fill" style="width: {{ val }}%"></div>
+</div>
+
+<span class="value">{{val}}%</span>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<p class="placeholder">Select a mixture to view composition</p>
+
+{% endif %}
+
+</div>
+
+</div>
+
+
+
+<!-- GRAPH PANEL -->
+
+<div class="graph-panel">
+
+<div class="card graph-card">
+
+{% if mixture_name %}
+<h2>Phase Diagram of {{ mixture_name }}</h2>
+{% else %}
+<h2>Phase Diagram</h2>
+<h3 class="mixture-title">Select a mixture to generate phase diagram</h3>
+{% endif %}
+
+<img
+class="plot"
+src="{{ url_for('static', filename=image_path) }}"
+>
+
+<div class="legend">
+
+<div class="legend-item">
+<div class="line pr"></div>
+<span>Peng–Robinson EOS</span>
+</div>
+
+<div class="legend-item">
+<div class="line pcsaft"></div>
+<span>PC-SAFT EOS</span>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<h1>Custom Gas Composition Lab</h1>
+
+<div class="container">
+
+<div class="slider-group">
+
+<label>N2</label>
+<input type="range" min="0" max="100" value="0" id="N2" oninput="updateVal('N2')">
+<span id="N2_val">0</span>
+
+<label>CO2</label>
+<input type="range" min="0" max="100" value="0" id="CO2" oninput="updateVal('CO2')">
+<span id="CO2_val">0</span>
+
+<label>C1 (Methane)</label>
+<input type="range" min="0" max="100" value="90" id="C1" oninput="updateVal('C1')">
+<span id="C1_val">90</span>
+
+<label>C2</label>
+<input type="range" min="0" max="100" value="5" id="C2" oninput="updateVal('C2')">
+<span id="C2_val">5</span>
+
+<label>C3</label>
+<input type="range" min="0" max="100" value="3" id="C3" oninput="updateVal('C3')">
+<span id="C3_val">3</span>
+
+<label>IC4</label>
+<input type="range" min="0" max="100" value="1" id="IC4" oninput="updateVal('IC4')">
+<span id="IC4_val">1</span>
+
+<label>NC4</label>
+<input type="range" min="0" max="100" value="1" id="NC4" oninput="updateVal('NC4')">
+<span id="NC4_val">1</span>
+
+<label>IC5</label>
+<input type="range" min="0" max="100" value="0" id="IC5" oninput="updateVal('IC5')">
+<span id="IC5_val">0</span>
+
+<label>NC5</label>
+<input type="range" min="0" max="100" value="0" id="NC5" oninput="updateVal('NC5')">
+<span id="NC5_val">0</span>
+
+<label>NC6</label>
+<input type="range" min="0" max="100" value="0" id="NC6" oninput="updateVal('NC6')">
+<span id="NC6_val">0</span>
+
+<label>NC7</label>
+<input type="range" min="0" max="100" value="0" id="NC7" oninput="updateVal('NC7')">
+<span id="NC7_val">0</span>
+
+<label>NC8</label>
+<input type="range" min="0" max="100" value="0" id="NC8" oninput="updateVal('NC8')">
+<span id="NC8_val">0</span>
+
+<label>NC10</label>
+<input type="range" min="0" max="100" value="0" id="NC10" oninput="updateVal('NC10')">
+<span id="NC10_val">0</span>
+
+</div>
+
+<button onclick="generatePlot()">Generate Phase Diagram</button>
+
+<div class="plot-area">
+<img id="plot" src="">
+</div>
+
+</div>
+
+
+
+<!-- LOADING SCREEN -->
+
+<div id="loading-screen">
+
+<div class="loader"></div>
+
+<p>Running EOS solver and generating phase envelope...</p>
+
+</div>
+
+
+
+<div class="card">
+
+<h3 class="section-title">About the Model</h3>
+
+<p class="section-text">
+
+Real gas mixtures cannot be described accurately by the ideal gas law.
+To capture intermolecular interactions and phase behaviour,
+thermodynamic <b>Equations of State (EOS)</b> are used.
+
+</p>
+
+<p class="section-text">
+
+This tool compares two important models:
+
+</p>
+
+<ul class="section-list">
+
+<li>
+<b>Peng–Robinson EOS:</b> Widely used cubic equation of state in
+petroleum and chemical engineering.
+</li>
+
+<li>
+<b>PC-SAFT EOS:</b> Molecular-based EOS capable of modeling
+complex chain-like molecules with higher accuracy.
+</li>
+
+</ul>
+
+</div>
+
+
+
+<div class="card">
+
+<h3 class="section-title">What Does the Phase Diagram Show?</h3>
+
+<ul class="section-list">
+
+<li><b>Bubble Curve:</b> liquid begins to vaporize.</li>
+<li><b>Dew Curve:</b> vapor begins to condense.</li>
+<li><b>Two Phase Region:</b> liquid and vapor coexist.</li>
+<li><b>Critical Point:</b> phases become indistinguishable.</li>
+
+</ul>
+
+</div>
+
+
+
+
+
+<!-- TEAM SECTION -->
+    <div class="card team-section">
+        <h3 class="team-title">The Lab</h3>
+        <p class="team-subtitle">Two minds. One experiment.</p>
+
+        <div class="team-grid">
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='nikhil.jpg') }}">
+                <h4>Nikhil</h4>
+                <p><b>Knows the Development</b></p>
+            </div>
+
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='vainavi.jpg') }}">
+                <h4>Vainavi</h4>
+                <p><b>Knows the Chemistry</b></p>
+            </div>
+        </div>
+
+        <p class="team-together">Together, we cook the graphs.</p>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        “You know the chemistry. I know the business.”
+    </div>
+
+</div>
+
+
+
+<!-- FOOTER -->
+
+<div class="footer">
+
+From equations of state to insight.
+
+</div>
+
+
+</div>
+
+
+<!-- LOADING SCREEN -->
+
+<div id="loading-screen">
+
+<div class="loader"></div>
+
+<p>Running EOS solver and generating phase envelope...</p>
+
+</div>
+
+
+
+</body>
+
+</html>
